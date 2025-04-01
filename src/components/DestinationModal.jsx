@@ -21,7 +21,7 @@ export const DestinationModal = ({ destination, onClose }) => {
         const unsplashResponse = await axios.get(
           `https://api.unsplash.com/search/photos?query=${destination.name}&client_id=${import.meta.env.VITE_UNSPLASH_API_KEY}`
         );
-        setImages(unsplashResponse.data.results.slice(0, 5));
+        setImages(unsplashResponse.data.results.slice(0, 4));
 
         // Obtener descripción
         const wikiResponse = await axios.get(
