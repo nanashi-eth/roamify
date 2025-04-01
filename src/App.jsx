@@ -1,21 +1,20 @@
 import "./App.css";
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { Home } from './pages/Home';
+import { Favorites } from './pages/Favorites';
+import { FavoritesProvider } from './context/FavoritesContext.jsx';
 
-function App() {
+export const App = () => {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-100">
-      <div className="rounded-xl bg-white p-8 shadow-md">
-        <h1 className="text-2xl font-bold text-gray-800">
-          ¡Hola Tailwind CSS v4!
-        </h1>
-        <p className="mt-2 text-gray-600">
-          Empezando con Tailwind en mi proyecto React
-        </p>
-        <button className="mt-4 rounded-lg bg-blue-500 px-4 py-2 text-white hover:bg-blue-600">
-          Botón de ejemplo
-        </button>
-      </div>
-    </div>
+    <FavoritesProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/favorites" element={<Favorites />} />
+        </Routes>
+      </BrowserRouter>
+    </FavoritesProvider>
   );
-}
+};
 
 export default App;
