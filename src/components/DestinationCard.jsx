@@ -1,6 +1,6 @@
 // DestinationCard.jsx
 import { useState } from 'react';
-import { useFavorites } from '../context/useFavorites';
+import { useFavorites } from '../hooks/useFavorites';
 import { DestinationModal } from '../components/DestinationModal';
 import { HeartIcon } from '@heroicons/react/24/outline';
 import { HeartIcon as HeartSolid } from '@heroicons/react/24/solid';

@@ -3,7 +3,7 @@ import axios from 'axios';
 import { SearchBar } from '../components/SearchBar';
 import { DestinationGrid } from '../components/DestinationGrid';
 import { FavoritesBanner } from '../components/FavoritesBanner';
-import { useFavorites } from '../context/useFavorites';
+import { useFavorites } from '../hooks/useFavorites';
 
 export const Home = () => {
   const [destinations, setDestinations] = useState([]);

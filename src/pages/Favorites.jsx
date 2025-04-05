@@ -1,4 +1,4 @@
-import { useFavorites } from '../context/useFavorites';
+import { useFavorites } from '../hooks/useFavorites';
 import { DestinationGrid } from '../components/DestinationGrid';
 
 export const Favorites = () => {

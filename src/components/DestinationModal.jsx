@@ -2,11 +2,13 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { XMarkIcon } from '@heroicons/react/24/outline';
+import { capitalize } from '../utils/helpers';
 
 export const DestinationModal = ({ destination, onClose }) => {
   const [weather, setWeather] = useState(null);
   const [images, setImages] = useState([]);
   const [description, setDescription] = useState('');
+  const destinationName = capitalize(destination.name);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -41,7 +43,7 @@ export const DestinationModal = ({ destination, onClose }) => {
       <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6">
           <div className="flex justify-between items-start mb-4">
-            <h2 className="text-2xl font-bold text-gray-900">{destination.name}</h2>
+            <h2 className="text-2xl font-bold text-gray-900">{destinationName}</h2>
             <button onClick={onClose} className="p-2 hover:text-gray-600">
               <XMarkIcon className="h-6 w-6" />
             </button>
@@ -80,7 +82,7 @@ export const DestinationModal = ({ destination, onClose }) => {
           {/* Descripción */}
           {description && (
             <div className="prose">
-              <h3 className="text-lg font-semibold mb-2 text-gray-900">Sobre {destination.name}</h3>
+              <h3 className="text-lg font-semibold mb-2 text-gray-900">Sobre {destinationName}</h3>
               <p className='text-gray-900'>{description}</p>
             </div>
           )}
