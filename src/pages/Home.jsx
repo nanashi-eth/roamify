@@ -7,7 +7,7 @@ import { useFavorites } from '../hooks/useFavorites';
 
 export const Home = () => {
   const [destinations, setDestinations] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('Paris'); // Valor inicial para demo
+  const [searchTerm, setSearchTerm] = useState('Sevilla'); // Valor inicial para demo
   const [isLoading, setIsLoading] = useState(false);
   const { favorites } = useFavorites();
 

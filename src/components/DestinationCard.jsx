@@ -24,7 +24,7 @@ export const DestinationCard = ({ destination }) => {
           onClick={() => setShowModal(true)}
         />
         <div className="p-4 flex justify-between items-center">
-          <h3 className="text-xl font-semibold">{destination.name}</h3>
+          <h3 className="text-xl font-semibold text-gray-700">{destination.name}</h3>
           <button 
             onClick={handleFavorite}
             className="p-2 hover:text-red-500 transition-colors"
