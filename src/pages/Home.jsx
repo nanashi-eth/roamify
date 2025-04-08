@@ -1,61 +1,62 @@
-import { useState, useEffect } from 'react';
-import axios from 'axios';
-import { SearchBar } from '../components/SearchBar';
-import { DestinationGrid } from '../components/DestinationGrid';
-import { FavoritesBanner } from '../components/FavoritesBanner';
-import { useFavorites } from '../hooks/useFavorites';
+// pages/Home.jsx
+import { useState, useEffect } from "react";
+import axios from "axios";
+import { SearchBar } from "../components/SearchBar";
+import { DestinationGrid } from "../components/DestinationGrid";
+import { FavoritesBanner } from "../components/FavoritesBanner";
+import { useFavorites } from "../hooks/useFavorites";
+import { searchLocations } from "../services/geocoding";
 
 export const Home = () => {
   const [destinations, setDestinations] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('Sevilla');
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
   const { favorites } = useFavorites();
 
-  const fetchLocationData = async (location) => {
+  const searchDestinations = async (location) => {
+    if (!location) return;
+
     try {
       setIsLoading(true);
-      setError(null);
-      
-      const [weather, images, wiki] = await Promise.all([
-        axios.get(`https://api.openweathermap.org/data/2.5/weather?lat=${location.lat}&lon=${location.lon}&units=metric&appid=${import.meta.env.VITE_OPENWEATHER_API_KEY}`),
-        axios.get(`https://api.unsplash.com/search/photos?page=1&query=${location.name}&client_id=${import.meta.env.VITE_UNSPLASH_API_KEY}`),
-        axios.get(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(location.name)}`)
-      ]);
 
-      // Validar respuestas
-      if (!weather.data || !images.data || !wiki.data) {
-        throw new Error('No se pudieron obtener todos los datos requeridos');
-      }
+      // 1. Obtener imágenes de Unsplash con query mejorado
+      const unsplashResponse = await axios.get(
+        `https://api.unsplash.com/search/photos?page=1&query=${location.displayName}&client_id=${import.meta.env.VITE_UNSPLASH_API_KEY}`
+      );
 
-      const newDestination = {
-        id: `loc-${location.name}-${Date.now()}`,
-        name: location.name,
-        country: location.country,
-        image: images.data.results[0]?.urls.regular || '',
-        weather: {
-          temp: weather.data.main.temp,
-          description: weather.data.weather[0].description,
-          icon: weather.data.weather[0].icon
-        },
-        wiki: {
-          summary: wiki.data.extract,
-          link: wiki.data.content_urls.desktop.page
-        }
-      };
+      // 2. Enriquecer datos con geolocalización
+      const destinationsData = unsplashResponse.data.results.map(
+        (img, index) => ({
+          id: `unsplash-${img.id}-${index}`,
+          name: location.name,
+          image: img.urls.regular,
+          country: location.country,
+          state: location.state,
+          coordinates: {
+            lat: location.lat,
+            lon: location.lon,
+          },
+        })
+      );
 
-      setDestinations([newDestination]);
-    } catch (err) {
-      setError(err.response?.data?.message || err.message);
+      setDestinations(destinationsData);
+    } catch (error) {
+      console.error("Error buscando destinos:", error);
     } finally {
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    if (selectedLocation) {
-      fetchLocationData(selectedLocation);
+    const fetchInitial = async () => {
+      const [defaultLocation] = await searchLocations("Sevilla");
+      if (defaultLocation) {
+        searchDestinations(defaultLocation);
+      }
+    };
+
+    if (!selectedLocation) {
+      fetchInitial();
     }
   }, [selectedLocation]);
 
@@ -63,11 +64,15 @@ export const Home = () => {
     <div className="min-h-screen bg-gray-50">
       <header className="bg-blue-600 text-white py-20 px-4">
         <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-4xl font-bold mb-4">Descubre Tu Próxima Aventura</h1>
-          <SearchBar 
-            onSearch={setSelectedLocation} 
-            initialValue={searchTerm}
-            onInputChange={setSearchTerm}
+          <h1 className="text-4xl font-bold mb-4">
+            Descubre Tu Próxima Aventura
+          </h1>
+          <SearchBar
+            onSearch={(location) => {
+              setSelectedLocation(location);
+              searchDestinations(location);
+            }}
+            initialValue="Sevilla, ES"
           />
         </div>
       </header>
@@ -75,12 +80,6 @@ export const Home = () => {
       {favorites.length > 0 && <FavoritesBanner count={favorites.length} />}
 
       <main className="max-w-6xl mx-auto p-4">
-        {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-            {error}
-          </div>
-        )}
-
         {isLoading ? (
           <div className="text-center py-12">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
@@ -89,7 +88,9 @@ export const Home = () => {
         ) : (
           <>
             <h2 className="text-2xl font-semibold mb-6">
-              {destinations.length ? `${destinations[0].name}, ${destinations[0].country}` : 'Busca un destino para comenzar'}
+              {destinations.length
+                ? `${destinations[0].name}, ${destinations[0].country}`
+                : "Busca un destino para comenzar"}
             </h2>
             <DestinationGrid destinations={destinations} />
           </>
